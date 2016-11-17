@@ -28,3 +28,6 @@ build/Release
 node_modules
 
 lib
+
+tmp/html/*.html
+tmp/pdf/*.pdf

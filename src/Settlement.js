@@ -1,5 +1,6 @@
 "use strict";
 import shell from "./shellHelper";
+import moment from 'moment'
 
 export default class Settlement {
   constructor() {
@@ -11,6 +12,13 @@ export default class Settlement {
   nativeCall() {
     console.log('Settlement#nativeCall is called')
     shell.exec('ls -la', function(err){
+      console.log('executed test');
+    });
+  }
+  wkhtmltopdf() {
+    console.log('Settlement#wkhtmltopdf is called')
+    // TODO ファイルの命名規則検討
+    shell.exec(`wkhtmltopdf ./template/index.html ./tmp/pdf/invoice_${moment().format('YYYYMMDDHHmmss')}.pdf`, function(err){
       console.log('executed test');
     });
   }
