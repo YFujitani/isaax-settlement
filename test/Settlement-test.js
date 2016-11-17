@@ -6,16 +6,12 @@ describe("Settlement-test", function () {
   afterEach(function () {
       textlint.resetRules()
   });
-  describe("#generate()", ()=> {
+  describe("#createCardToken()", ()=> {
     let settlement = new Settlement()
-    settlement.generate()
+    settlement.createCardToken()
   });
-  describe("#nativeCall()", ()=> {
-    let settlement = new Settlement()
-    settlement.nativeCall()
-  });
-  describe("#wkhtmltopdf()", ()=> {
-    let settlement = new Settlement()
-    settlement.wkhtmltopdf()
-  });
+  // describe("#wkhtmltopdf()", ()=> {
+  //   let settlement = new Settlement()
+  //   settlement.wkhtmltopdf()
+  // });
 });
