@@ -3,54 +3,78 @@ import connectToStripe from 'stripe'
 import moment from 'moment'
 
 import shell from "./shellHelper";
+import Freee from "./freee/freee-api"
 
 export default class Settlement {
   constructor() {
     console.log('Settlement#constructor is called')
   }
-  generate() {
-    console.log('Settlement#generate is called')
-  }
-  nativeCall() {
-    console.log('Settlement#nativeCall is called')
-    shell.exec('ls -la', function(err){
-      console.log('executed test');
-    });
-  }
-  createCardToken() {
-    console.log('Settlement#createCardToken is called')
-    const stripe = connectToStripe('SET_TOKEN');
-    const t = stripe.tokens.create({
-      card: {
-        "number": '4242424242424242',
-        "exp_month": 12,
-        "exp_year": 2017,
-        "cvc": '123'
-      }
-    }, function(err, token) {
-      // asynchronously called
-      if (token) return token;
-    });
-    console.log(t);
-  }
-  charge() {
+
+  chargeStripe(sk, params, callback = chargeStripeHandler) {
     console.log('Settlement#charge is called')
-    const stripe = connectToStripe('SET_TOKEN');
-    stripe.charges.create({
-      amount: 2000,
-      currency: "usd",
-      source: "tok_189fan2eZvKYlo2CaP40I543", // obtained with Stripe.js
-      description: "Charge for natalie.wilson@example.com"
-    }, function(err, charge) {
-      // asynchronously called
-      console.log(charge)
-    });
+    // API毎にsercret keyが必要な模様
+    const stripe = connectToStripe(sk)
+    stripe.charges.create(params, callback);
   }
+  chargeStripeHandler(err, charge) {
+    if (err) console.log(err)
+    console.log(charge)
+  }
+
+  customerListStripe(sk, params, callback) {
+    console.log('Settlement#customerListStripe is called')
+    // API毎にsercret keyが必要な模様
+    const stripe = connectToStripe(sk)
+    stripe.customers.list(params, callback)
+  }
+
+  freeeUsers(access_token, config, callback = fetchMeHandler) {
+    console.log('Settlement#freeeUsers is called')
+    Freee.configure(config)
+    const freee = new Freee({
+      accessToken: access_token
+    })
+    console.log(freee)
+    freee.me(callback)
+  }
+  fetchMeHandler(err, me) {
+    if (err) return next(err)
+    console.log('#fetchMeHandler')
+    console.log(me)
+  }
+
+  freeeDeals(access_token, config, companyId, callback = fetchDealsHandler) {
+    console.log('Settlement#freeeDeals is called')
+    const freee = new Freee({
+      accessToken: access_token
+    })
+    freee.deals(companyId, callback)
+  }
+  fetchDealsHandler(err, deals) {
+    if (err) return next(err)
+    console.log('#fetchDealsHandler')
+    console.log(deals)
+  }
+
+  freeePostDeal(access_token, config, deal, callback = postDealHandler) {
+    console.log('Settlement#freeePostDealUsers is called')
+    Freee.configure(config)
+    const freee = new Freee({
+      accessToken: access_token
+    })
+    freee.postDeal(deal, callback)
+  }
+  postDealHandler(err, deals) {
+    if (err) return next(err)
+    console.log('#fetchPostDealHandler')
+    console.log(deals)
+  }
+
   wkhtmltopdf() {
     console.log('Settlement#wkhtmltopdf is called')
     // TODO ファイルの命名規則検討
     shell.exec(`wkhtmltopdf ./template/index.html ./tmp/pdf/invoice_${moment().format('YYYYMMDDHHmmss')}.pdf`, function(err){
-      console.log('executed test');
-    });
+      console.log('executed test')
+    })
   }
 }
