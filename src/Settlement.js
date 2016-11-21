@@ -1,6 +1,9 @@
 "use strict";
 import connectToStripe from 'stripe'
+import connectToOauth2 from 'simple-oauth2'
+import fs from 'fs'
 import moment from 'moment'
+import template from 'es6-template-strings'
 
 import shell from "./shellHelper";
 import Freee from "./freee/freee-api"
@@ -28,52 +31,29 @@ export default class Settlement {
     stripe.customers.list(params, callback)
   }
 
-  freeeUsers(access_token, config, callback = fetchMeHandler) {
-    console.log('Settlement#freeeUsers is called')
-    Freee.configure(config)
-    const freee = new Freee({
-      accessToken: access_token
+  freeeCreateDeal(credentials, tokenConfig, config, deal, done) {
+    const oauth2 = connectToOauth2.create(credentials)
+    oauth2.ownerPassword.getToken(tokenConfig, (error, result) => {
+      Freee.configure(config)
+      const freee = new Freee({ accessToken: result.access_token })
+      freee.postDeal(deal, (err, deals) => {
+        if (err) {
+          console.log(err)
+          console.log(err.errors[0].messages)
+        }
+        console.log(deals)
+        if (done) done() // for mocha test
+      })
     })
-    console.log(freee)
-    freee.me(callback)
-  }
-  fetchMeHandler(err, me) {
-    if (err) return next(err)
-    console.log('#fetchMeHandler')
-    console.log(me)
   }
 
-  freeeDeals(access_token, config, companyId, callback = fetchDealsHandler) {
-    console.log('Settlement#freeeDeals is called')
-    const freee = new Freee({
-      accessToken: access_token
-    })
-    freee.deals(companyId, callback)
-  }
-  fetchDealsHandler(err, deals) {
-    if (err) return next(err)
-    console.log('#fetchDealsHandler')
-    console.log(deals)
-  }
+  sendPdf(data) {
+    console.log('Settlement#sendPdf is called')
+    const datetime = moment().format('YYYYMMDDHHmmss')
 
-  freeePostDeal(access_token, config, deal, callback = postDealHandler) {
-    console.log('Settlement#freeePostDealUsers is called')
-    Freee.configure(config)
-    const freee = new Freee({
-      accessToken: access_token
-    })
-    freee.postDeal(deal, callback)
-  }
-  postDealHandler(err, deals) {
-    if (err) return next(err)
-    console.log('#fetchPostDealHandler')
-    console.log(deals)
-  }
-
-  wkhtmltopdf() {
-    console.log('Settlement#wkhtmltopdf is called')
-    // TODO ファイルの命名規則検討
-    shell.exec(`wkhtmltopdf ./template/index.html ./tmp/pdf/invoice_${moment().format('YYYYMMDDHHmmss')}.pdf`, function(err){
+    const rendered = template(fs.readFileSync('./template/invoice.html', 'utf8'), data)
+    fs.writeFileSync(`./tmp/html/invoice_${datetime}.html`, rendered)
+    shell.exec(`wkhtmltopdf ./tmp/html/invoice_${datetime}.html ./tmp/pdf/invoice_${datetime}.pdf`, function(err){
       console.log('executed test')
     })
   }

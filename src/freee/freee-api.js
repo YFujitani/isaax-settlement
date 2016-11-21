@@ -45,8 +45,6 @@ Freee.prototype.call = function(opts, fn) {
     access_token: this.token.accessToken
   }, opts.query);
 
-  console.log('Freee.prototype.call')
-  console.log(opts)
   var params = opts.method == 'GET' ? {
     method: opts.method,
     url: config.endpoint + opts.url,

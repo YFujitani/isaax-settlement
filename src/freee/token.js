@@ -9,8 +9,6 @@ function Token(params) {
 }
 
 Token.prototype.set = function(params) {
-  console.log('Token.prototype.set')
-  console.log(params)
   if (params.accessToken) {
     this.accessToken = params.accessToken;
   }
