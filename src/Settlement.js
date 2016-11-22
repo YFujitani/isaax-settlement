@@ -4,6 +4,7 @@ import connectToOauth2 from 'simple-oauth2'
 import fs from 'fs'
 import moment from 'moment'
 import template from 'es6-template-strings'
+import AWS from 'aws-sdk'
 
 import shell from "./shellHelper";
 import Freee from "./freee/freee-api"
@@ -47,14 +48,34 @@ export default class Settlement {
     })
   }
 
-  sendPdf(data) {
+  sendPdf(data, s3config, done) {
     console.log('Settlement#sendPdf is called')
     const datetime = moment().format('YYYYMMDDHHmmss')
 
     const rendered = template(fs.readFileSync('./template/invoice.html', 'utf8'), data)
     fs.writeFileSync(`./tmp/html/invoice_${datetime}.html`, rendered)
     shell.exec(`wkhtmltopdf ./tmp/html/invoice_${datetime}.html ./tmp/pdf/invoice_${datetime}.pdf`, function(err){
-      console.log('executed test')
+      console.log('wkhtmltopdf is executed.')
+      AWS.config.update({
+      	accessKeyId: s3config.accessKeyId,
+      	secretAccessKey: s3config.secretAccessKey,
+      	region: s3config.region
+      });
+      const s3 = new AWS.S3()
+      const params = {
+        Bucket: s3config.bucket,
+        Key: `invoice_${datetime}.pdf`,
+        Body: fs.createReadStream(`./tmp/pdf/invoice_${datetime}.pdf`)
+      }
+      s3.putObject(params, function(err, data) {
+        if (err) {
+          console.log(err, err.stack) // an error occurred
+          if (done) done() // for mocha test
+        } else {
+          console.log(data);           // successful response
+          if (done) done() // for mocha test
+        }
+      });
     })
   }
 }

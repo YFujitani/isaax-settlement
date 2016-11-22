@@ -25,12 +25,17 @@ describe("Settlement-test", function () {
       password: 'password' // freee login password
     }
   }
-
+  const s3config = {
+    accessKeyId: 'accessKeyId',
+    secretAccessKey: 'secretAccessKey',
+    bucket: 'isaax-test',
+    region: 'ap-northeast-1'
+  }
   afterEach(function () {
       textlint.resetRules()
   });
 
-  // // TODO テストの成否判定
+  // Stripe API test case
   // describe("#customerListStripe()", ()=> {
   //   it('customerListStripe return 2 customers', function(done) {
   //     let settlement = new Settlement()
@@ -42,24 +47,25 @@ describe("Settlement-test", function () {
   //   })
   // });
   //
-  describe("#chargeStripe()", ()=> {
-    it('chargeStripe is success', function(done) {
-      let settlement = new Settlement()
-      let params = {
-        amount: 2000,
-        currency: "usd",
-        customer: "cus_9axc9sb1xynFXy",
-        description: "Charge for william.thomas.64@example.com"
-      }
-      settlement.chargeStripe(stripe.chargeApiSk, params, (err, charge) => {
-        if (err) console.log(err)
-        console.log(charge)
-        done()
-      })
-    })
-  });
+  // describe("#chargeStripe()", ()=> {
+  //   it('chargeStripe is success', function(done) {
+  //     let settlement = new Settlement()
+  //     let params = {
+  //       amount: 2000,
+  //       currency: "usd",
+  //       customer: "cus_9axc9sb1xynFXy",
+  //       description: "Charge for william.thomas.64@example.com"
+  //     }
+  //     settlement.chargeStripe(stripe.chargeApiSk, params, (err, charge) => {
+  //       if (err) console.log(err)
+  //       console.log(charge)
+  //       done()
+  //     })
+  //   })
+  // });
 
 
+  // freee API test case
   // describe("#freeeDeals()", ()=> {
   //   it('freeeDeals is success', function(done) {
   //     let settlement = new Settlement()
@@ -126,27 +132,27 @@ describe("Settlement-test", function () {
   //   })
   // });
 
-  describe("#freeeCreateDeal()", ()=> {
-    it('freeeCreateDeal is success', function(done) {
-      let settlement = new Settlement()
-      const deal = {
-        "company_id" : freee.companyId,
-        "issue_date" : "2016-11-21",
-        "due_date" : "2016-12-30",
-        "type" : "expense",
-        "details" : [
-          {
-            "account_item_id" : 128318538,
-            "tax_id" : 64925877,
-            "tax_code" : 2,
-            "amount" : 9999,
-            "description" : "備考備考備考備考備考備考備考"
-          }
-        ]
-      }
-      settlement.freeeCreateDeal(freee.credentials, freee.tokenConfig, freee.config, deal, done)
-    })
-  });
+  // describe("#freeeCreateDeal()", ()=> {
+  //   it('freeeCreateDeal is success', function(done) {
+  //     let settlement = new Settlement()
+  //     const deal = {
+  //       "company_id" : freee.companyId,
+  //       "issue_date" : "2016-11-21",
+  //       "due_date" : "2016-12-30",
+  //       "type" : "expense",
+  //       "details" : [
+  //         {
+  //           "account_item_id" : 128318538,
+  //           "tax_id" : 64925877,
+  //           "tax_code" : 2,
+  //           "amount" : 9999,
+  //           "description" : "備考備考備考備考備考備考備考"
+  //         }
+  //       ]
+  //     }
+  //     settlement.freeeCreateDeal(freee.credentials, freee.tokenConfig, freee.config, deal, done)
+  //   })
+  // });
 
   describe("#sendPdf()", ()=> {
     it('sendPdf is success', function(done) {
@@ -166,7 +172,7 @@ describe("Settlement-test", function () {
         tax: '¥ 1,600',
         total: '¥ 21,600'
       }
-      settlement.sendPdf(data)
+      settlement.sendPdf(data, s3config, done)
     })
   });
 
