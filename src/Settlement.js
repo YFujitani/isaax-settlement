@@ -48,7 +48,7 @@ export default class Settlement {
     })
   }
 
-  sendPdf(data, s3config, done) {
+  sendPdf(data, s3config, done = null) {
     console.log('Settlement#sendPdf is called')
     const datetime = moment().format('YYYYMMDDHHmmss')
 
@@ -72,10 +72,57 @@ export default class Settlement {
           console.log(err, err.stack) // an error occurred
           if (done) done() // for mocha test
         } else {
-          console.log(data);           // successful response
+          console.log(data) // successful response
           if (done) done() // for mocha test
         }
       });
     })
   }
+
+  // Promise test code
+  // createPdf(data, s3config) {
+  //   const datetime = moment().format('YYYYMMDDHHmmss')
+  //   const rendered = template(fs.readFileSync('./template/invoice.html', 'utf8'), data)
+  //   fs.writeFileSync(`./tmp/html/invoice_${datetime}.html`, rendered)
+  //   return new Promise(function (resolve, reject) {
+  //     shell.exec(`wkhtmltopdf ./tmp/html/invoice_${datetime}.html ./tmp/pdf/invoice_${datetime}.pdf`, function(err){
+  //       if (err) {
+  //         reject(err)
+  //       } else {
+  //         resolve({
+  //           path: `./tmp/pdf/invoice_${datetime}.pdf`,
+  //           key: `invoice_${datetime}.pdf`,
+  //           s3config: s3config
+  //         })
+  //       }
+  //     })
+  //   })
+  // }
+  // uploadS3(args) {
+  //   console.log('uploadS3 is called')
+  //   console.log(args)
+  //   AWS.config.update({
+  //     accessKeyId: args.s3config.accessKeyId,
+  //     secretAccessKey: args.s3config.secretAccessKey,
+  //     region: args.s3config.region
+  //   });
+  //   const s3 = new AWS.S3()
+  //   const params = {
+  //     Bucket: args.s3config.bucket,
+  //     Key: args.key,
+  //     Body: fs.createReadStream(args.path)
+  //   }
+  //   return new Promise(function (resolve, reject) {
+  //     s3.putObject(params, function(err, data) {
+  //       if (err) {
+  //         console.log(err, err.stack)
+  //         reject(err)
+  //       } else {
+  //         console.log(data)
+  //         resolve()
+  //       }
+  //     });
+  //   })
+  // }
+
 }
