@@ -2,7 +2,7 @@
 
 ## Description
 
-It becomes the npm package which performs the following series of processing.
+It is the npm package which performs the following series of processing.
 
 1. Settlement with stripe API call
 2. Transaction registration with freee API
